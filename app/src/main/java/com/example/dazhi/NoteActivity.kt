@@ -19,7 +19,7 @@ fun NoteActivity(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("新页面") },
+                title = { Text("打卡") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "返回")

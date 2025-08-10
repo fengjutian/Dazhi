@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,6 +19,7 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -51,8 +55,11 @@ fun Mine() {
     // Add more examples here in future if necessary.
 
     DetailedDrawerExample { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Column(modifier = Modifier.padding(innerPadding)) {
+            // 喜好展示
             CarouselExample_MultiBrowse()
+            // 打卡地点
+            NoteList(innerPadding)
         }
     }
 }
@@ -166,6 +173,39 @@ fun DetailedDrawerExample(
 
             composable("newScreen") {
                 NoteActivity(navController)
+            }
+        }
+    }
+}
+
+@Composable
+fun NoteList(innerPadding: PaddingValues) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        // 示例数据列表
+        val items = listOf(
+            "列表项 1", "列表项 2", "列表项 3",
+            "列表项 4", "列表项 5", "列表项 6",
+            "列表项 7", "列表项 8", "列表项 9", "列表项 10"
+        )
+
+        // 遍历数据生成列表项
+        items(items) { item ->
+            // 列表项内容
+            Text(
+                text = item,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            // 分割线（最后一项不显示）
+            if (item != items.last()) {
+                Divider()
             }
         }
     }
