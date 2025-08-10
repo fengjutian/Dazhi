@@ -1,7 +1,9 @@
 package com.example.dazhi
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +25,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarouselExample_MultiBrowse() {
+fun CarouselExample_MultiBrowse(innerPadding: PaddingValues) {
     data class CarouselItem(
         val id: Int,
         @DrawableRes val imageResId: Int,
@@ -45,10 +47,14 @@ fun CarouselExample_MultiBrowse() {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = 16.dp, bottom = 16.dp),
+            .padding(top = 1.dp, bottom = 0.dp)
+            .border(
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                shape = MaterialTheme.shapes.small
+            ),
         preferredItemWidth = 186.dp,
         itemSpacing = 8.dp,
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        contentPadding = PaddingValues(horizontal = 1.dp)
     ) { i ->
         val item = items[i]
         Image(

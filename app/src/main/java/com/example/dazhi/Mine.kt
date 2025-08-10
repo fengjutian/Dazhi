@@ -1,6 +1,9 @@
 package com.example.dazhi
 
 import NoteActivity
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,26 +45,106 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.rpc.Help
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PlaylistAddCircle
+
+@Composable
+fun SongsScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Songs Screen")
+    }
+}
+
+@Composable
+fun AlbumScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Album Screen")
+    }
+}
+
+@Composable
+fun PlaylistScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Playlist Screen")
+    }
+}
+
+enum class Destination(
+    val route: String,
+    val label: String,
+    val icon: ImageVector,
+    val contentDescription: String
+) {
+    SONGS("songs", "Songs", Icons.Default.MusicNote, "Songs"),
+    ALBUM("album", "Album", Icons.Default.Album, "Album"),
+    PLAYLISTS("playlist", "Playlist", Icons.Default.PlaylistAddCircle, "Playlist")
+}
+
+@Composable
+fun AppNavHost(
+    navController: NavHostController,
+    startDestination: Destination,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController,
+        startDestination = startDestination.route
+    ) {
+        Destination.entries.forEach { destination ->
+            composable(destination.route) {
+                when (destination) {
+                    Destination.SONGS -> SongsScreen()
+                    Destination.ALBUM -> AlbumScreen()
+                    Destination.PLAYLISTS -> PlaylistScreen()
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun Mine() {
     // Add more examples here in future if necessary.
 
     DetailedDrawerExample { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(modifier = Modifier.padding(innerPadding)
+            .border(
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                shape = MaterialTheme.shapes.small
+            )
+//            .padding(6.dp)
+            .fillMaxSize()
+            ,
+            verticalArrangement = Arrangement.Top
+        ) {
             // 喜好展示
-            CarouselExample_MultiBrowse()
+            CarouselExample_MultiBrowse(innerPadding)
             // 打卡地点
-            NoteList(innerPadding)
+            NoteList(innerPadding, modifier = Modifier.weight(1f))
         }
     }
 }
@@ -73,6 +158,9 @@ fun DetailedDrawerExample(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+
+    val startDestination = Destination.SONGS
+    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -146,16 +234,23 @@ fun DetailedDrawerExample(
                         )
                     },
                     bottomBar = {
-                        BottomAppBar(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                text = "Bottom app bar",
-                            )
+                        NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+                            Destination.entries.forEachIndexed { index, destination ->
+                                NavigationBarItem(
+                                    selected = selectedDestination == index,
+                                    onClick = {
+                                        navController.navigate(route = destination.route)
+                                        selectedDestination = index
+                                    },
+                                    icon = {
+                                        Icon(
+                                            destination.icon,
+                                            contentDescription = destination.contentDescription
+                                        )
+                                    },
+                                    label = { Text(destination.label) }
+                                )
+                            }
                         }
                     },
                     floatingActionButton = {
@@ -174,23 +269,36 @@ fun DetailedDrawerExample(
             composable("newScreen") {
                 NoteActivity(navController)
             }
+
+            composable(Destination.SONGS.route) { SongsScreen() }
+            composable(Destination.ALBUM.route) { AlbumScreen() }
+            composable(Destination.PLAYLISTS.route) { PlaylistScreen() }
         }
     }
 }
 
 @Composable
-fun NoteList(innerPadding: PaddingValues) {
+fun NoteList(innerPadding: PaddingValues, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding),
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            .padding(innerPadding).border(
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                shape = MaterialTheme.shapes.small
+            ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
         // 示例数据列表
         val items = listOf(
             "列表项 1", "列表项 2", "列表项 3",
             "列表项 4", "列表项 5", "列表项 6",
-            "列表项 7", "列表项 8", "列表项 9", "列表项 10"
+            "列表项 7", "列表项 8", "列表项 9", "列表项 10",
+            "列表项 11",
+            "列表项 12",
+            "列表项 13",
+            "列表项 14",
+            "列表项 15",
+            "列表项 16",
         )
 
         // 遍历数据生成列表项
