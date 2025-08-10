@@ -1,5 +1,6 @@
 package com.example.dazhi
 
+import NoteActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.rpc.Help
 import kotlinx.coroutines.launch
 
@@ -61,6 +65,7 @@ fun DetailedDrawerExample(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -108,46 +113,60 @@ fun DetailedDrawerExample(
         drawerState = drawerState
     ) {
         var presses by remember { mutableIntStateOf(0) }
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("我是你的搭子啊！") },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
+
+        NavHost(
+            navController = navController,
+            startDestination = "home"
+        ) {
+            composable("home") {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("我是你的搭子啊！") },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    scope.launch {
+                                        if (drawerState.isClosed) {
+                                            drawerState.open()
+                                        } else {
+                                            drawerState.close()
+                                        }
+                                    }
+                                }) {
+                                    Icon(Icons.Default.Menu, contentDescription = "Menu")
                                 }
                             }
+                        )
+                    },
+                    bottomBar = {
+                        BottomAppBar(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                text = "Bottom app bar",
+                            )
+                        }
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(onClick = {
+                            navController.navigate("newScreen")
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Add, contentDescription = "Add")
                         }
                     }
-                )
-            },
-            bottomBar = {
-                BottomAppBar(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        text = "Bottom app bar",
-                    )
-                }
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = { presses++ }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+
+                ) { innerPadding ->
+                    content(innerPadding)
                 }
             }
 
-        ) { innerPadding ->
-            content(innerPadding)
+            composable("newScreen") {
+                NoteActivity(navController)
+            }
         }
     }
 }
